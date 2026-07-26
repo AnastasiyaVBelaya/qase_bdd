@@ -4,6 +4,12 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
+
+env:
+  USER_EMAIL: ${{ secrets.USER_EMAIL }}
+  USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
+  API_TOKEN: ${{ secrets.API_TOKEN }}
+
 jobs:
   test:
     timeout-minutes: 60
@@ -20,10 +26,6 @@ jobs:
     - name: Generate BDD files
       run: npx bddgen
     - name: Run Playwright tests
-      env:
-          USER_EMAIL: ${{ secrets.USER_EMAIL }}
-          USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
-          API_TOKEN: ${{ secrets.API_TOKEN }}
       run: npx playwright test
       
     - uses: actions/upload-artifact@v4
