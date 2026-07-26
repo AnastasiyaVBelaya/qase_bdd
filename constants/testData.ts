@@ -1,0 +1,1 @@
+export const INVALID_PASSWORD_SUFFIX = '_invalid';

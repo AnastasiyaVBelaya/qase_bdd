@@ -1,0 +1,28 @@
+{
+  "name": "qase_bdd",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AnastasiyaVBelaya/qase_bdd.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/AnastasiyaVBelaya/qase_bdd/issues"
+  },
+  "homepage": "https://github.com/AnastasiyaVBelaya/qase_bdd#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.61.1",
+    "@types/node": "^26.1.1",
+    "playwright-bdd": "^9.2.0"
+  },
+  "dependencies": {
+    "axios": "^1.18.1",
+    "dotenv": "^17.4.2"
+  }
+}
