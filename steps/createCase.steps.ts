@@ -38,7 +38,7 @@ When('I select behavior {string}', async ({ state }, value: string) => {
     await state.createCasePage!.selectBehavior(value);
 });
 
-When('I enable the {string} checkbox', async ({ state }) => {
+When('I enable the {string} checkbox', async ({ state }, checkboxName: string) => {
     await state.createCasePage!.enableAutomation();
 });
 
