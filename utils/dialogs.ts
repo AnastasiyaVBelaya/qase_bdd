@@ -5,12 +5,10 @@ export const blockCookieBanner = async (page: Page): Promise<void> => {
 };
 
 export const closeAidenDialog = async (page: Page): Promise<void> => {
-    const dialog = page.locator('dialog[open]').filter({ hasText: 'Explore AIDEN' });
-
     try {
+        const dialog = page.locator('dialog[open]').filter({ hasText: 'Explore AIDEN' });
         await dialog.waitFor({ state: 'visible', timeout: 5000 });
-        await dialog.getByRole('button').last().click();
+        await dialog.locator('button:has(svg[data-icon="xmark"])').click();
         await dialog.waitFor({ state: 'hidden', timeout: 5000 });
-    } catch {
-    }
+    } catch {}
 };

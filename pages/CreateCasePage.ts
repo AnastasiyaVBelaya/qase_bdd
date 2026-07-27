@@ -15,6 +15,8 @@ export class CreateCasePage {
     readonly newStepButton: Locator;
     readonly saveButton: Locator;
     readonly attachmentButton: Locator;
+    readonly manualTestButton: Locator;
+    readonly createManuallyMenuItem: Locator;
 
     private stepsAdded = 0;
 
@@ -33,10 +35,17 @@ export class CreateCasePage {
         this.newStepButton = page.getByRole('button', { name: 'New step', exact: true });
         this.saveButton = page.getByRole('button', { name: 'Save', exact: true });
         this.attachmentButton = page.getByRole('button', { name: 'Add attachment' });
+        this.manualTestButton = page.getByRole('button', { name: 'Manual test' });
+        this.createManuallyMenuItem = page.getByRole('menuitem', { name: 'Create manually' });
     }
 
     async fillTitle(title: string): Promise<void> {
         await this.titleInput.fill(title);
+    }
+
+    async openCreateCaseForm(): Promise<void> {
+        await this.manualTestButton.click();
+        await this.createManuallyMenuItem.click();
     }
 
     private async selectDropdownOption(dropdown: Locator, optionName: string): Promise<void> {

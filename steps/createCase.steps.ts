@@ -10,10 +10,9 @@ const { When, Then } = createBdd(test);
 
 When('I create a new test case with title {string}', async ({ page, state, scenarioContext }, title: string) => {
     await closeAidenDialog(page);
-    await page.getByRole('button', { name: 'Manual test' }).click();
-    await page.getByRole('menuitem', { name: 'Create manually' }).click();
 
     state.createCasePage = new CreateCasePage(page);
+    await state.createCasePage!.openCreateCaseForm();
     await state.createCasePage.fillTitle(title);
     scenarioContext.caseTitle = title;
 });
@@ -68,24 +67,39 @@ When('I submit the test case', async ({ page, state, scenarioContext }) => {
     const response = await responsePromise;
     const data = await response.json();
     scenarioContext.caseId = data.result?.id;
+
+    await closeAidenDialog(page);
 });
 
 Then('I see the test case in the list', async ({ page, scenarioContext }) => {
     await expect(page.getByText(scenarioContext.caseTitle!).first()).toBeVisible();
 });
 
-When('I click on the created test case', async ({ page, scenarioContext }) => {
-    const caseId = `${scenarioContext.projectCode}-1`;
-    await page.locator(`a:has-text("${caseId}")`).first().click();
-});
-
 Then('the test case is created via API', async ({ page, scenarioContext }) => {
-    const response = await page.waitForResponse(
-        (res) => res.url().includes(endpoints.CASES_LOAD_API) && res.status() === HTTP_STATUS.OK,
-        { timeout: 30000 }
+    // 1. Гарантированно закрываем модальные окна
+    await closeAidenDialog(page);
+    
+    const caseId = `${scenarioContext.projectCode}-1`;
+    
+    // 2. Устанавливаем слушатель ДО клика. 
+    // Фильтруем по ID кейса в URL и методу GET
+    const responsePromise = page.waitForResponse(
+        (res) => res.url().includes(caseId) && 
+                 res.request().method() === 'GET' && 
+                 res.status() === HTTP_STATUS.OK
     );
+    
+    // 3. Кликаем по ссылке на кейс (используем href для точности)
+    await page.locator(`a[href="/case/${caseId}"]`).first().click();
 
+    // 4. Ждем ответ и парсим JSON
+    const response = await responsePromise;
     const data = await response.json();
+    
+    // 5. Валидация API ответа согласно предоставленной структуре
     expect(data.status).toBe(true);
     expect(data.case.title).toBe(scenarioContext.caseTitle);
+    
+    // 6. Валидация в UI (ждем появления заголовка в боковой панели)
+    await expect(page.getByRole('heading', { name: scenarioContext.caseTitle! })).toBeVisible({ timeout: 10000 });
 });
