@@ -6,7 +6,7 @@ import path from 'path';
 dotenv.config();
 const envFile = process.env.ENV_FILE;
 if (envFile) {
-    dotenv.config({ path: path.resolve(__dirname, 'environments', envFile) });
+  dotenv.config({ path: path.resolve(__dirname, 'environments', envFile) });
 }
 
 const testDir = defineBddConfig({
@@ -29,17 +29,27 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome']
+      },
     },
 
     {
       name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
+      use: {
+        ...devices['Desktop Firefox'],
+        actionTimeout: 30000,
+        navigationTimeout: 60000,
+      },
     },
 
     {
       name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
+      use: {
+        ...devices['Desktop Safari'],
+        actionTimeout: 30000,
+        navigationTimeout: 60000,
+      },
     },
   ],
 });

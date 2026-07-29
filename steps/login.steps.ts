@@ -14,13 +14,15 @@ Given('I am on the login page', async ({ loginPage }) => {
 });
 
 When('I login with valid credentials', async ({ loginPage, page, credentials }) => {
-  const responsePromise = page.waitForResponse(
-    (response) =>
-      response.url().includes(endpoints.PROJECTS_FILTERS_API_PATH) &&
-      response.status() === HTTP_STATUS.OK
-  );
-  await loginPage.login(credentials.email, credentials.password);
-  await responsePromise;
+  const [response] = await Promise.all([
+        page.waitForResponse(
+            (response) =>
+                response.url().includes(endpoints.PROJECTS_FILTERS_API_PATH) &&
+                response.status() === HTTP_STATUS.OK
+        ),
+        loginPage.login(credentials.email, credentials.password),
+    ]);
+    await page.waitForLoadState('domcontentloaded');
 });
 
 Then('I am redirected to the projects page', async ({ page }) => {
@@ -33,14 +35,15 @@ Then('I see the projects page title', async ({ projectsPage }) => {
 });
 
 When('I login with invalid credentials', async ({ loginPage, page, credentials }) => {
-  const responsePromise = page.waitForResponse(
-    (response) =>
-      response.url().includes(endpoints.LOGIN_API_PATH) &&
-      response.status() === HTTP_STATUS.UNAUTHORIZED
-  );
-  const invalidPassword = credentials.password + testData.INVALID_PASSWORD_SUFFIX;
-  await loginPage.login(credentials.email, invalidPassword);
-  await responsePromise;
+  const [response] = await Promise.all([
+        page.waitForResponse(
+            (response) =>
+                response.url().includes(endpoints.LOGIN_API_PATH) &&
+                response.status() === HTTP_STATUS.UNAUTHORIZED
+        ),
+        loginPage.login(credentials.email, credentials.password + testData.INVALID_PASSWORD_SUFFIX),
+    ]);
+    await page.waitForLoadState('domcontentloaded');
 });
 
 Then('I see an error message', async ({ loginPage }) => {
