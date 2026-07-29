@@ -10,8 +10,8 @@ export class CreateProjectPage {
   constructor(page: Page) {
     this.page = page;
     this.modalTitle = page.getByRole('heading', { name: 'Create new project' });
-    this.titleInput = page.locator('#project-name');
-    this.codeInput = page.locator('#project-code');
+    this.titleInput = page.getByLabel('Project name');
+    this.codeInput = page.getByLabel('Project code');
     this.submitButton = page.getByRole('button', { name: 'Create project', exact: true });
   }
 
@@ -25,5 +25,13 @@ export class CreateProjectPage {
 
   async submit(): Promise<void> {
     await this.submitButton.click();
+  }
+
+  async waitForModalVisible(): Promise<void> {
+    await this.modalTitle.waitFor({ state: 'visible' });
+  }
+
+  async waitForModalHidden(): Promise<void> {
+    await this.modalTitle.waitFor({ state: 'hidden' });
   }
 }

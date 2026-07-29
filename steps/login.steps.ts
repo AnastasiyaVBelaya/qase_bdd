@@ -2,6 +2,7 @@ import { expect } from '@playwright/test';
 import { createBdd } from 'playwright-bdd';
 import { test } from './fixtures';
 import * as endpoints from '../constants/endpoints';
+import { HTTP_STATUS } from '../constants/httpStatus';
 import * as messages from '../constants/messages';
 import * as testData from '../constants/testData';
 import * as titles from '../constants/titles';
@@ -12,8 +13,12 @@ Given('I am on the login page', async ({ loginPage }) => {
   await loginPage.goto();
 });
 
-When('I login with valid credentials', async ({ loginPage, credentials }) => {
-  const responsePromise = loginPage.waitForLoginSuccess();
+When('I login with valid credentials', async ({ loginPage, page, credentials }) => {
+  const responsePromise = page.waitForResponse(
+    (response) =>
+      response.url().includes(endpoints.PROJECTS_FILTERS_API_PATH) &&
+      response.status() === HTTP_STATUS.OK
+  );
   await loginPage.login(credentials.email, credentials.password);
   await responsePromise;
 });
@@ -27,8 +32,12 @@ Then('I see the projects page title', async ({ projectsPage }) => {
   await expect(projectsPage.title).toHaveText(titles.PROJECTS);
 });
 
-When('I login with invalid credentials', async ({ loginPage, credentials }) => {
-  const responsePromise = loginPage.waitForLoginFailure();
+When('I login with invalid credentials', async ({ loginPage, page, credentials }) => {
+  const responsePromise = page.waitForResponse(
+    (response) =>
+      response.url().includes(endpoints.LOGIN_API_PATH) &&
+      response.status() === HTTP_STATUS.UNAUTHORIZED
+  );
   const invalidPassword = credentials.password + testData.INVALID_PASSWORD_SUFFIX;
   await loginPage.login(credentials.email, invalidPassword);
   await responsePromise;

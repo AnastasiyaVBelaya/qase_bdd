@@ -18,8 +18,6 @@ export class CreateCasePage {
     readonly manualTestButton: Locator;
     readonly createManuallyMenuItem: Locator;
 
-    private stepsAdded = 0;
-
     constructor(page: Page) {
         this.page = page;
         this.titleInput = page.getByLabel('Title');
@@ -88,29 +86,23 @@ export class CreateCasePage {
     async enableAutomation(): Promise<void> {
         await this.page.getByText('To be automated', { exact: true }).click();
     }
-    
+
     async addStep(action: string, data: string, expected: string): Promise<void> {
-        const stepCountBefore = await this.page.locator('[id^="edit-step-"]').count();
         await this.newStepButton.click();
-        await this.page.waitForFunction(
-        (count) => document.querySelectorAll('[id^="edit-step-"]').length > count,
-        stepCountBefore
-    );
         const lastStep = this.page.locator('[id^="edit-step-"]').last();
         await lastStep.waitFor({ state: 'visible' });
         await lastStep.locator('[id^="action-"]').fill(action);
         await lastStep.locator('[id^="data-"]').fill(data);
         await lastStep.locator('[id^="expected_result-"]').fill(expected);
-        this.stepsAdded++;
     }
 
     async uploadAttachment(filePath: string, stepNumber: number): Promise<void> {
         const step = this.page.locator('[id^="edit-step-"]').nth(stepNumber - 1);
         const attachmentButton = step.locator('button:has(svg[data-icon="image"])');
         await attachmentButton.click();
-    
         const fileInput = this.page.locator('input[type="file"]');
         await fileInput.setInputFiles(filePath);
+        await this.page.keyboard.press('Escape');
     }
 
     async save(): Promise<void> {
@@ -118,9 +110,9 @@ export class CreateCasePage {
     }
 
     private fieldDropdown(labelText: string): Locator {
-    return this.page
-        .locator(`label:text-is("${labelText}")`)
-        .locator('xpath=..')
-        .getByRole('combobox');
+        return this.page
+            .locator(`label:text-is("${labelText}")`)
+            .locator('..')
+            .getByRole('combobox');
     }
 }

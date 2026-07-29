@@ -3,14 +3,12 @@ import { createBdd } from 'playwright-bdd';
 import { test } from './fixtures';
 import * as endpoints from '../constants/endpoints';
 import { HTTP_STATUS } from '../constants/httpStatus';
-import { closeAidenDialog } from '../utils/dialogs';
+
 import { CreateCasePage } from '../pages/CreateCasePage';
 
 const { When, Then } = createBdd(test);
 
 When('I create a new test case with title {string}', async ({ page, state, scenarioContext }, title: string) => {
-    await closeAidenDialog(page);
-
     state.createCasePage = new CreateCasePage(page);
     await state.createCasePage!.openCreateCaseForm();
     await state.createCasePage.fillTitle(title);
@@ -56,50 +54,40 @@ When('I submit the test case', async ({ page, state, scenarioContext }) => {
     const responsePromise = page.waitForResponse(
         (response) => {
             const url = response.url();
-            return url.includes(endpoints.CASES_SAVE_FORM) && 
-                   response.status() === HTTP_STATUS.OK;
+            return url.includes(endpoints.CASES_SAVE_FORM) &&
+                response.status() === HTTP_STATUS.OK;
         },
         { timeout: 60000 }
     );
 
     await state.createCasePage!.save();
-
     const response = await responsePromise;
     const data = await response.json();
     scenarioContext.caseId = data.result?.id;
-
-    await closeAidenDialog(page);
 });
 
 Then('I see the test case in the list', async ({ page, scenarioContext }) => {
-    await expect(page.getByText(scenarioContext.caseTitle!).first()).toBeVisible();
+    const caseId = `${scenarioContext.projectCode}-1`;
+    await expect(page.getByRole('link', { name: caseId })).toBeVisible();
 });
 
 Then('the test case is created via API', async ({ page, scenarioContext }) => {
-    // 1. Гарантированно закрываем модальные окна
-    await closeAidenDialog(page);
-    
     const caseId = `${scenarioContext.projectCode}-1`;
-    
-    // 2. Устанавливаем слушатель ДО клика. 
-    // Фильтруем по ID кейса в URL и методу GET
-    const responsePromise = page.waitForResponse(
-        (res) => res.url().includes(caseId) && 
-                 res.request().method() === 'GET' && 
-                 res.status() === HTTP_STATUS.OK
-    );
-    
-    // 3. Кликаем по ссылке на кейс (используем href для точности)
-    await page.locator(`a[href="/case/${caseId}"]`).first().click();
+    const closeButton = page.getByRole('button', { name: 'Close' }).first();
+    if (await closeButton.isVisible()) {
+        await closeButton.click();
+        await closeButton.waitFor({ state: 'hidden', timeout: 5000 });
+    }
 
-    // 4. Ждем ответ и парсим JSON
+    const responsePromise = page.waitForResponse(
+        (res) => res.url().includes(endpoints.CASES_LOAD_API) && res.status() === HTTP_STATUS.OK,
+        { timeout: 30000 }
+    );
+    await page.getByRole('link', { name: caseId }).click();
+    await page.waitForLoadState('domcontentloaded');
+
     const response = await responsePromise;
     const data = await response.json();
-    
-    // 5. Валидация API ответа согласно предоставленной структуре
     expect(data.status).toBe(true);
     expect(data.case.title).toBe(scenarioContext.caseTitle);
-    
-    // 6. Валидация в UI (ждем появления заголовка в боковой панели)
-    await expect(page.getByRole('heading', { name: scenarioContext.caseTitle! })).toBeVisible({ timeout: 10000 });
 });

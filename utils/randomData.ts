@@ -1,12 +1,9 @@
-export function generateProjectTitle(): string {
-  return `Project ${Date.now()}`;
-}
+const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
-export function generateProjectCode(): string {
-  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  let code = '';
-  for (let i = 0; i < 8; i++) {
-    code += letters[Math.floor(Math.random() * letters.length)];
-  }
-  return code;
-}
+export const generateString = (): string => {
+    let result = '';
+    for (let i = 0; i < 8; i++) {
+        result += LETTERS[Math.floor(Math.random() * LETTERS.length)];
+    }
+    return result;
+};

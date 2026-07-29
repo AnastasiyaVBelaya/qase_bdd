@@ -1,6 +1,6 @@
 Feature: Login
 
-  Background: 
+  Background:
     Given I am on the login page
 
   Scenario: Login with valid credentials
