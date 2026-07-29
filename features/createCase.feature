@@ -19,14 +19,14 @@ Feature: Create test case
     And I select behavior "Positive"
     And I enable the "To be automated" checkbox
     And I add the following steps to the test case:
-      | action              | data                | expected                   |
-      | Open login page     |                     | Login page is displayed    |
-      | Enter email         | user@example.com    | Email is entered           |
-      | Enter password      | ValidPass123        | Password is entered        |
-      | Click submit        |                     | Dashboard is displayed     |
-      | Verify dashboard    |                     | Dashboard is visible       |
-      | Attach report file  |                     | File is attached           |
-      | Click logout        |                     | Logout is successful       |
+      | action             | data             | expected                |
+      | Open login page    |                  | Login page is displayed |
+      | Enter email        | user@example.com | Email is entered        |
+      | Enter password     | ValidPass123     | Password is entered     |
+      | Click submit       |                  | Dashboard is displayed  |
+      | Verify dashboard   |                  | Dashboard is visible    |
+      | Attach report file |                  | File is attached        |
+      | Click logout       |                  | Logout is successful    |
     And I attach file "sample.txt" to step 6
     And I submit the test case
     Then I see the test case in the list

@@ -68,22 +68,23 @@ When('I submit the test case', async ({ page, state, scenarioContext }) => {
 
 Then('I see the test case in the list', async ({ page, scenarioContext }) => {
     const caseId = `${scenarioContext.projectCode}-1`;
-    await expect(page.getByRole('link', { name: caseId })).toBeVisible();
+    await expect(page.getByRole('link', { name: caseId, exact: true })).toBeVisible();
 });
 
 Then('the test case is created via API', async ({ page, scenarioContext }) => {
-    const caseId = `${scenarioContext.projectCode}-1`;
-    const closeButton = page.getByRole('button', { name: 'Close' }).first();
-    if (await closeButton.isVisible()) {
-        await closeButton.click();
-        await closeButton.waitFor({ state: 'hidden', timeout: 5000 });
+    const sideView = page.locator('.KpQKhh');
+    if (await sideView.isVisible()) {
+        await sideView.getByRole('button', { name: 'Close' }).click();
+        await sideView.waitFor({ state: 'hidden', timeout: 5000 });
     }
+
+    const caseId = `${scenarioContext.projectCode}-1`;
 
     const responsePromise = page.waitForResponse(
         (res) => res.url().includes(endpoints.CASES_LOAD_API) && res.status() === HTTP_STATUS.OK,
         { timeout: 30000 }
     );
-    await page.getByRole('link', { name: caseId }).click();
+    await page.getByRole('link', { name: caseId, exact: true }).click();
     await page.waitForLoadState('domcontentloaded');
 
     const response = await responsePromise;
