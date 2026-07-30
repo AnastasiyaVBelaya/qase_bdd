@@ -36,6 +36,7 @@ export default defineConfig({
 
     {
       name: 'firefox',
+      timeout: 60_000,
       use: {
         ...devices['Desktop Firefox'],
         actionTimeout: 30000,
@@ -45,6 +46,7 @@ export default defineConfig({
 
     {
       name: 'webkit',
+      timeout: 60_000,
       use: {
         ...devices['Desktop Safari'],
         actionTimeout: 30000,

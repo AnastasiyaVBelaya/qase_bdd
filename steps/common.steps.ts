@@ -25,7 +25,6 @@ When('I navigate to the project', async ({ projectsPage, page, scenarioContext }
 });
 
 When('I navigate to the suite', async ({ page, scenarioContext }) => {
-
     await page.getByText(scenarioContext.suiteTitle!).first().click();
     await page.getByRole('heading', { name: scenarioContext.suiteTitle! }).waitFor({ state: 'visible' });
 });

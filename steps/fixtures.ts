@@ -35,6 +35,12 @@ type Fixtures = {
     state: PageObjects;
 };
 
+const MOCKED_JSON_RESPONSE = {
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({ status: true, data: [] }),
+} as const;
+
 const AI_MOCK_PATTERNS = ['**/ai/**', '**/aiden/**'];
 const BLOCKED_PATTERNS = [
     '**/analytics/**',
@@ -44,33 +50,21 @@ const BLOCKED_PATTERNS = [
 ];
 
 export const test = base.extend<Fixtures>({
-    page: async ({ browser }, use) => {
-        const context = await browser.newContext({
-            storageState: undefined,
-            ignoreHTTPSErrors: true,
-        });
-        const page = await context.newPage();
 
+    page: async ({ page }, use) => {
         for (const pattern of AI_MOCK_PATTERNS) {
-            await page.route(pattern, async (route) => {
-                await route.fulfill({
-                    status: 200,
-                    contentType: 'application/json',
-                    body: JSON.stringify({ status: true, data: [] }),
-                });
-            });
+            await page.route(pattern, (route) => route.fulfill(MOCKED_JSON_RESPONSE));
         }
 
         for (const pattern of BLOCKED_PATTERNS) {
-            await page.route(pattern, route => route.abort());
+            await page.route(pattern, (route) => route.abort());
         }
 
-        page.on('response', async (response) => {
-            await handleAIResponse(page, response.url(), response.status());
+        page.on('response', (response) => {
+            void handleAIResponse(page, response.url(), response.status());
         });
 
         await use(page);
-        await context.close();
     },
 
     credentials: async ({ }, use) => {
